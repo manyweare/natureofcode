@@ -5,6 +5,7 @@ function round(n)
 end
 
 -- map a value from one range to another
+-- similar to p5.js map
 function map_value(n, min1, max1, min2, max2)
     return (((n - min1) * (max2 - min2)) / (max1 - min1)) + min2
 end
@@ -29,6 +30,23 @@ function approx_dist(a, b)
     return b0 * 0.9609 + a0 * 0.3984
 end
 
+function nearby(a, t, r)
+    local n = {}
+    for k, v in pairs(t) do
+        if (approx_dist(a.pos, v.pos) < r) add(n, v)
+    end
+    return n
+end
+
+--from bbs (TODO: find op and credit)
+--to circumvent #table error
+function is_empty(t)
+    for _, _ in pairs(t) do
+        return false
+    end
+    return true
+end
+
 --rect rect AABB
 function rect_rect_collision(r1, r2)
     return r1.pos.x < r2.pos.x + r2.size.w
@@ -37,13 +55,13 @@ function rect_rect_collision(r1, r2)
             and r1.pos.y + r1.size.h > r2.pos.y
 end
 
---get direction from cords
+--get direction with cords
 function get_dir(x1, y1, x2, y2)
     return atan2(x2 - x1, y2 - y1)
 end
 
---get direction from objects
-function get_dir_(a, b)
+--get direction with objects that have x, y pos
+function get_dir_pos(a, b)
     return atan2(b.x - a.x, b.y - a.y)
 end
 
@@ -64,28 +82,4 @@ function col(a, b, r)
     local y = abs(a.y - b.y)
     if y > r then return false end
     return (x * x + y * y) < r * r
-end
-
-function get_inputs()
-    --register last inputs
-    for x = 1, 8 do
-        p_i_last[x] = p_inputs[x]
-    end
-    local wasd = split("4,7,26,22,0,40")
-    --register current inputs
-    for x = 1, 6 do
-        p_inputs[x] = btn(x - 1) or stat(28, wasd[x])
-    end
-    --assign direction values
-    for x = 1, 4 do
-        if p_inputs[x] then
-            p_i_data[x] = 1
-        else
-            p_i_data[x] = 0
-        end
-    end
-end
-
-function get_down(x)
-    return p_inputs[x] and not p_i_last[x]
 end

@@ -26,7 +26,7 @@ function v_perp(v) return vector(v.y, -v.x) end
 function v_dir(a, b) return v_norm(v_sub(b, a)) end
 
 -- added setmag and limit they're useful for locomotion
-function v_setmag(v, n) return v_mul(v_norm(v), n) end
+function v_setmag(v, n) return v_scale(v_norm(v), n) end
 function v_limit(v, n)
     if (v_magsq(v) > n * n) v = v_setmag(v, n)
     return v
