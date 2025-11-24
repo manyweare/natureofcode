@@ -17,7 +17,7 @@ function _init()
     init_agents()
 end
 
-function _update()
+function _update60()
     update_target()
     update_agents()
     update_input()
@@ -110,7 +110,7 @@ end
 function draw_debug(t)
     -- forces
     for k, a in pairs(t) do
-        -- -- position trail
+        -- position trail
         -- for i, j in pairs(a.pos_record) do
         --     pset(j.x, j.y, 1)
         -- end

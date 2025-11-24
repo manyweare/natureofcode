@@ -86,11 +86,32 @@ end
 
 -- draw
 function agent:draw()
+    -- "tail" or inverted velocity lines
+    line(
+        self.pos.x,
+        self.pos.y,
+        self.pos.x - self.vel.x * 5,
+        self.pos.y - self.vel.y * 5,
+        7
+    )
+    line(
+        self.pos.x - 1,
+        self.pos.y,
+        self.pos.x - self.vel.x * 5,
+        self.pos.y - self.vel.y * 5,
+        7
+    )
+    line(
+        self.pos.x + 1,
+        self.pos.y,
+        self.pos.x - self.vel.x * 5,
+        self.pos.y - self.vel.y * 5,
+        7
+    )
     -- shape version
     circfill(self.pos.x, self.pos.y, 1, 7)
     -- pset(self.pos.x, self.pos.y, 11)
     -- circ(self.pos.x, self.pos.y, 2, 1)
-
     -- sprite version
     -- if (self.pos.x > self.tgt.x) then
     --     self.flip = true
