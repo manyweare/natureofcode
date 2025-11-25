@@ -21,45 +21,13 @@ function _update60()
     update_target()
     update_agents()
     update_input()
+    if (is_debug_active) update_debug()
 end
 
 function _draw()
     cls()
     if is_debug_active then
-        -- fillp(0x8000)
-        -- rectfill(0, 0, 128, 128, 1)
-        -- fillp()
-        -- agent count
-        -- rectfill(0, 0, 36, 6, 0)
-        print("agents:" .. tostr(#agent_list), 1, 1, 7)
-        -- cpu
-        -- rectfill(0, 6, 32, 13, 0)
-        cpu = round(stat(1) * 100)
-        cpu_max = max(cpu, cpu_max)
-        -- calculate averate of last cpu values
-        if (#cpu_vals > 100) then
-            deli(cpu_vals, 1)
-        end
-        add(cpu_vals, cpu)
-        local cpu_sum = 0
-        for i = 1, #cpu_vals do
-            cpu_sum += cpu_vals[i]
-        end
-        cpu_avg = round(cpu_sum / #cpu_vals)
-        local i = min(round(map_value(stat(1), 0, 1, 1, #cpu_clr)), #cpu_clr)
-        print("cpu:" .. tostr(cpu) .. "%", 1, 8, cpu_clr[i])
-        print("avg:" .. tostr(cpu_avg) .. "%", 1, 14, 1)
-        print("max:" .. tostr(cpu_max) .. "%", 1, 20, 1)
-        -- behavior display
-        -- rectfill(63, 0, 87, 6, 0)
-        print(behaviors[curr_behavior], 64, 1, 8)
-        -- instructions
-        -- rectfill(0, 114, 128, 128, 0)
-        print("⬆️⬇️:add/delete", 64, 115, 1)
-        print("⬅️➡️:behavior", 64, 122, 1)
-        print("🅾️:reset", 1, 115, 1)
-        print("❎:toggle ui", 1, 122, 1)
-        -- vel and force lines
+        draw_ui()
         draw_debug(agent_list)
         draw_target()
     end
@@ -114,6 +82,45 @@ function draw_trail(t)
             pset(j.x, j.y, 1)
         end
     end
+end
+
+function update_debug()
+    cpu = round(stat(1) * 100)
+    cpu_max = max(cpu, cpu_max)
+    -- calculate averate of last cpu values
+    if (#cpu_vals > 100) then
+        deli(cpu_vals, 1)
+    end
+    add(cpu_vals, cpu)
+    local cpu_sum = 0
+    for i = 1, #cpu_vals do
+        cpu_sum += cpu_vals[i]
+    end
+    cpu_avg = round(cpu_sum / #cpu_vals)
+end
+
+function draw_ui()
+    -- fillp(0x8000)
+    -- rectfill(0, 0, 128, 128, 1)
+    -- fillp()
+    -- agent count
+    -- rectfill(0, 0, 36, 6, 0)
+    print("agents:" .. tostr(#agent_list), 1, 1, 7)
+    -- cpu
+    -- rectfill(0, 6, 32, 13, 0)
+    local i = min(round(map_value(stat(1), 0, 1, 1, #cpu_clr)), #cpu_clr)
+    print("cpu:" .. tostr(cpu) .. "%", 1, 8, cpu_clr[i])
+    print("avg:" .. tostr(cpu_avg) .. "%", 1, 14, 1)
+    print("max:" .. tostr(cpu_max) .. "%", 1, 20, 1)
+    -- behavior display
+    -- rectfill(63, 0, 87, 6, 0)
+    print(behaviors[curr_behavior], 64, 1, 8)
+    -- instructions
+    -- rectfill(0, 114, 128, 128, 0)
+    print("⬆️⬇️:add/delete", 64, 115, 1)
+    print("⬅️➡️:behavior", 64, 122, 1)
+    print("🅾️:reset", 1, 115, 1)
+    print("❎:toggle ui", 1, 122, 1)
 end
 
 function draw_debug(t)
