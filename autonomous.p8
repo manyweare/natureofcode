@@ -1,7 +1,7 @@
 pico-8 cartridge // http://www.pico-8.com
 version 43
 __lua__
--- steering
+-- autonomous
 -- by mdvn
 -- original code by daniel shiffman
 -- natureofcode.com

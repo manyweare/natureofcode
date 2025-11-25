@@ -63,6 +63,7 @@ function _draw()
         draw_debug(agent_list)
         draw_target()
     end
+    draw_trail(agent_list)
     draw_agents()
 end
 
@@ -107,13 +108,17 @@ function draw_target()
     -- circ(target.x, target.y, target_influence, 1)
 end
 
+function draw_trail(t)
+    for a in all(t) do
+        for i, j in pairs(a.pos_record) do
+            pset(j.x, j.y, 1)
+        end
+    end
+end
+
 function draw_debug(t)
     -- forces
     for k, a in pairs(t) do
-        -- position trail
-        -- for i, j in pairs(a.pos_record) do
-        --     pset(j.x, j.y, 1)
-        -- end
         -- awareness radius
         -- circ(a.pos.x, a.pos.y, a.awareness, 1)
         -- velocity line

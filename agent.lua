@@ -13,25 +13,9 @@ agent = {
     maxfrc = .1,
     size = 6,
     awareness = 10,
+    color = 7,
     pos_record = {}
 }
-
-function init_agents()
-    agent_list = {}
-    add(agent_list, new_rnd_agent())
-end
-
-function update_agents()
-    for a in all(agent_list) do
-        a:update()
-    end
-end
-
-function draw_agents()
-    for a in all(agent_list) do
-        a:draw()
-    end
-end
 
 -- constructor
 function agent:new(o)
@@ -51,13 +35,31 @@ function agent:new(o)
     return a
 end
 
+function init_agents()
+    agent_list = {}
+    add(agent_list, new_rnd_agent())
+end
+
+function update_agents()
+    for a in all(agent_list) do
+        a:update()
+    end
+end
+
+function draw_agents()
+    for a in all(agent_list) do
+        a:draw()
+    end
+end
+
 -- create new random agent
 function new_rnd_agent()
     a = agent:new({
         pos = vector(16 + rnd(96), 16 + rnd(96)),
         maxspd = 1 + rnd(2),
         maxfrc = .05 + rnd(.1),
-        tgt = target
+        tgt = target,
+        color = round(7 + rnd(8))
     })
     return a
 end
@@ -78,10 +80,8 @@ function agent:update()
     -- basic locomotion
     self:move()
     -- record position
-    -- if self.pos_record != nil then
-    --     add(self.pos_record, { x = self.pos.x, y = self.pos.y })
-    --     if (count(self.pos_record) > 30) deli(self.pos_record, 1)
-    -- end
+    add(self.pos_record, { x = self.pos.x, y = self.pos.y })
+    if (count(self.pos_record) > 30) deli(self.pos_record, 1)
 end
 
 -- draw
@@ -92,24 +92,24 @@ function agent:draw()
         self.pos.y,
         self.pos.x - self.vel.x * 5,
         self.pos.y - self.vel.y * 5,
-        7
+        self.color
     )
     line(
         self.pos.x - 1,
         self.pos.y,
         self.pos.x - self.vel.x * 5,
         self.pos.y - self.vel.y * 5,
-        7
+        self.color
     )
     line(
         self.pos.x + 1,
         self.pos.y,
         self.pos.x - self.vel.x * 5,
         self.pos.y - self.vel.y * 5,
-        7
+        self.color
     )
     -- shape version
-    circfill(self.pos.x, self.pos.y, 1, 7)
+    circfill(self.pos.x, self.pos.y, 1, self.color)
     -- pset(self.pos.x, self.pos.y, 11)
     -- circ(self.pos.x, self.pos.y, 2, 1)
     -- sprite version
