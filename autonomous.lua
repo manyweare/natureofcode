@@ -2,10 +2,17 @@
 
 function _init()
     -- target vars
-    is_debug_active = true
-    target = rnd_target_pos(16, 112)
+    is_debug_active = false
+    target = agent:new({
+        x = 64,
+        y = 42
+    })
+    tpos = { 16, 16, 112, 16, 112, 70, 16, 70 }
+    ti = 1
+    -- t_pos = { 16, 72, 104 }
     target_lt = 0
     target_influence = 30
+    -- debug vars
     cpu = 0
     cpu_max = 0
     cpu_avg = 0
@@ -15,24 +22,69 @@ function _init()
     curr_behavior = 2
     -- initialize agents
     init_agents()
+    num = 6
+    height = 128
+    hratio = height / num
+    hratio += (hratio / num + 1)
+    wratio = 128 / num
+    wratio += (wratio / num + 1)
+    frame = 0
+    tgl = false
+    -- spawn around the screen
+    for i = 0, num - 1 do
+        local a = spawn_agent(i * wratio, 0, target, 1)
+        add(agent_list, a)
+        local a = spawn_agent(i * wratio, height, target, 1)
+        add(agent_list, a)
+        if i > 0 and i < num - 1 then
+            local a = spawn_agent(0, i * hratio, target, 1)
+            add(agent_list, a)
+            local a = spawn_agent(128, i * hratio, target, 1)
+            add(agent_list, a)
+        end
+    end
 end
 
-function _update60()
+function _update()
     update_target()
     update_agents()
     update_input()
     if (is_debug_active) update_debug()
+    -- update_spawn()
 end
 
 function _draw()
     cls()
+    draw_agents()
+    draw_target()
+    draw_map()
     if is_debug_active then
-        draw_ui()
         draw_debug(agent_list)
+        draw_ui()
         draw_target()
     end
-    draw_trail(agent_list)
-    draw_agents()
+    -- draw_trail(agent_list)
+end
+
+function update_spawn()
+    local max_spawn = 42
+    if frame % 5 == 0 then
+        -- local
+        local a = spawn_agent(rnd(128), -10, target, round(7 + rnd(8)))
+        add(agent_list, a)
+        if (#agent_list > max_spawn) then deli(agent_list, 1) end
+        local a = spawn_agent(rnd(128), 138, target, round(7 + rnd(8)))
+        add(agent_list, a)
+        if (#agent_list > max_spawn) then deli(agent_list, 1) end
+        local a = spawn_agent(-10, rnd(128), target, round(7 + rnd(8)))
+        add(agent_list, a)
+        if (#agent_list > max_spawn) then deli(agent_list, 1) end
+        local a = spawn_agent(138, rnd(128), target, round(7 + rnd(8)))
+        add(agent_list, a)
+        if (#agent_list > max_spawn) then deli(agent_list, 1) end
+    end
+    frame += 1
+    if (frame == 129) frame = 0
 end
 
 function update_input()
@@ -65,14 +117,19 @@ end
 
 function update_target()
     target_lt += 1
-    if target_lt > 45 then
-        target = rnd_target_pos(12, 116)
+    -- local dx, dy = 0, 0
+    if target_lt > 5 + rnd(10) then
+        target.x = mid(32, 32 + rnd(64), 96)
+        target.y = mid(height / 2 - 6, rnd(height / 2 + 6), height / 2 + 6)
+        -- target.x += (1 - rnd(2))
+        -- target.y += (1 - rnd(2))
         target_lt = 0
     end
 end
 
 function draw_target()
-    circ(target.x, target.y, 1, 8)
+    -- circfill(target.x, target.y, 32, 0)
+    -- circfill(64, 48, 24, 0)
     -- circ(target.x, target.y, target_influence, 1)
 end
 
@@ -99,9 +156,36 @@ function update_debug()
     cpu_avg = round(cpu_sum / #cpu_vals)
 end
 
+function draw_map()
+    map(0, 0, 0, 0, 16, 16)
+    local cx = 4
+    local cy = 84
+    local xo = 62
+    local clrs = { 7, 12, 8 }
+    -- print("friday", cx, cy, clrs[1])
+    -- print("december 19", cx, cy + 7, clrs[1])
+    -- print("6-8pm", cx, cy + 14, clrs[1])
+    -- print("room c-130", cx + xo, cy, clrs[2])
+    -- print("food+prizes!", cx + xo, cy + 7, clrs[2])
+    print("friday  december 19  6-8pm", cx + 8, 104, clrs[1])
+    print("450 grand concourse room c-130", cx, 111, clrs[1])
+    print("capstone games + prizes", cx + 14, 120, clrs[1])
+    -- if tgl then
+    -- print("capstone games", cx + 32, 120, clrs[1])
+    -- else
+    -- print("+bonus games & prizes", cx + 17, 120, clrs[1])
+    -- end
+    if frame % 30 == 0 then
+        tgl = not tgl
+    end
+    frame += 1
+    -- print("capstone games", cx + xo, 112, clrs[3])
+    -- print("+other classes", cx + xo, 119, clrs[3])
+end
+
 function draw_ui()
     -- fillp(0x8000)
-    -- rectfill(0, 0, 128, 128, 1)
+    -- rectfill(0, 0, 128, 128, 3)
     -- fillp()
     -- agent count
     -- rectfill(0, 0, 36, 6, 0)
@@ -127,7 +211,7 @@ function draw_debug(t)
     -- forces
     for k, a in pairs(t) do
         -- awareness radius
-        -- circ(a.pos.x, a.pos.y, a.awareness, 1)
+        circ(a.pos.x, a.pos.y, a.awareness, 1)
         -- velocity line
         line(
             a.pos.x,

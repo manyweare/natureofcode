@@ -7,15 +7,18 @@
 
 agent = {
     pos = vector(),
+    origin = vector(),
     vel = vector(),
     accel = vector(),
-    maxspd = 1,
-    maxfrc = .1,
-    size = 6,
-    awareness = 10,
+    maxspd = .75,
+    maxfrc = .05,
+    size = 8,
+    awareness = 12,
     color = 7,
     pos_record = {}
 }
+
+atgl = false
 
 -- constructor
 function agent:new(o)
@@ -37,11 +40,19 @@ end
 
 function init_agents()
     agent_list = {}
-    add(agent_list, new_rnd_agent())
+    -- add(agent_list, new_rnd_agent())
 end
 
 function update_agents()
+    if (frame % 60 == 0) atgl = not atgl
     for a in all(agent_list) do
+        if atgl then
+            -- a.awareness *= 3
+            a.size *= 2
+        else
+            -- a.awareness = 12
+            a.size = 12
+        end
         a:update()
     end
 end
@@ -54,12 +65,22 @@ end
 
 -- create new random agent
 function new_rnd_agent()
-    a = agent:new({
+    local a = agent:new({
         pos = vector(16 + rnd(96), 16 + rnd(96)),
-        maxspd = 1 + rnd(2),
-        maxfrc = .05 + rnd(.1),
+        maxspd = 1.5 + rnd(2.5),
+        maxfrc = .05 + rnd(.05),
         tgt = target,
         color = round(7 + rnd(8))
+    })
+    return a
+end
+
+function spawn_agent(x, y, t, c)
+    local a = agent:new({
+        pos = vector(x, y),
+        origin = vector(x, y),
+        tgt = t,
+        color = c
     })
     return a
 end
@@ -80,36 +101,78 @@ function agent:update()
     -- basic locomotion
     self:move()
     -- record position
-    add(self.pos_record, { x = self.pos.x, y = self.pos.y })
-    if (count(self.pos_record) > 30) deli(self.pos_record, 1)
+    -- add(self.pos_record, { x = self.pos.x, y = self.pos.y })
+    -- if (count(self.pos_record) > 30) deli(self.pos_record, 1)
 end
 
 -- draw
 function agent:draw()
-    -- "tail" or inverted velocity lines
-    line(
-        self.pos.x,
-        self.pos.y,
-        self.pos.x - self.vel.x * 5,
-        self.pos.y - self.vel.y * 5,
-        self.color
-    )
-    line(
-        self.pos.x - 1,
-        self.pos.y,
-        self.pos.x - self.vel.x * 5,
-        self.pos.y - self.vel.y * 5,
-        self.color
-    )
-    line(
-        self.pos.x + 1,
-        self.pos.y,
-        self.pos.x - self.vel.x * 5,
-        self.pos.y - self.vel.y * 5,
-        self.color
-    )
+    -- local c = self.color
+    -- self.color = 0
     -- shape version
-    circfill(self.pos.x, self.pos.y, 1, self.color)
+    -- body
+    -- circfill(self.pos.x, self.pos.y, 1, self.color)
+    -- circ(self.pos.x, self.pos.y, 2, self.color)
+    -- "tail" or inverted velocity lines
+    local length = 5
+    -- for i = 0, 1 do
+    --     line(
+    --         self.pos.x,
+    --         self.pos.y,
+    --         self.pos.x - self.vel.x * length,
+    --         self.pos.y - self.vel.y * length,
+    --         self.color
+    --     )
+    --     line(
+    --         self.pos.x - i,
+    --         self.pos.y,
+    --         self.pos.x - self.vel.x * length,
+    --         self.pos.y - self.vel.y * length,
+    --         self.color
+    --     )
+    --     line(
+    --         self.pos.x + i,
+    --         self.pos.y,
+    --         self.pos.x - self.vel.x * length,
+    --         self.pos.y - self.vel.y * length,
+    --         self.color
+    --     )
+    --     line(
+    --         self.pos.x,
+    --         self.pos.y - i,
+    --         self.pos.x - self.vel.x * length,
+    --         self.pos.y - self.vel.y * length,
+    --         self.color
+    --     )
+    --     line(
+    --         self.pos.x,
+    --         self.pos.y + i,
+    --         self.pos.x - self.vel.x * length,
+    --         self.pos.y - self.vel.y * length,
+    --         self.color
+    --     )
+    -- end
+    -- tongue
+    -- circfill(
+    --     self.pos.x + self.vel.x * length,
+    --     self.pos.y + self.vel.y * length,
+    --     1, self.color
+    -- )
+    -- length = 1
+    for i = 0, 1 do
+        local endx = self.pos.x + self.vel.x / length
+        local endy = self.pos.y + self.vel.y / length
+        line(self.origin.x - i * 2, self.origin.y, endx, endy, self.color)
+        line(self.origin.x + i * 2, self.origin.y, endx, endy, self.color)
+        line(self.origin.x, self.origin.y - i * 2, endx, endy, self.color)
+        line(self.origin.x, self.origin.y + i * 2, endx, endy, self.color)
+        local v = vector(endx, endy)
+        -- local mag = v_mag(v)
+        -- local hv = v_setmag(v, mag)
+        line(self.origin.x, self.origin.y, v.x, v.y, self.color)
+        -- line(hv.x, hv.y, endx, endy, 7)
+    end
+    -- circfill(self.pos.x, self.pos.y, 10, 0)
     -- pset(self.pos.x, self.pos.y, 11)
     -- circ(self.pos.x, self.pos.y, 2, 1)
     -- sprite version
@@ -119,6 +182,7 @@ function agent:draw()
     --     self.flip = false
     -- end
     -- spr(2, self.pos.x, self.pos.y, 1, 1, self.flip)
+    -- self.color = c
 end
 
 -- basic locomotion --
@@ -132,16 +196,16 @@ function agent:move()
     -- self.pos.x = mid(self.size / 2, self.pos.x, 128 - self.size / 2)
     -- self.pos.y = mid(self.size / 2, self.pos.y, 128 - self.size / 2)
     -- wrap around screen
-    if self.pos.x > 128 then
-        self.pos.x = 0
-    elseif self.pos.x < 0 then
-        self.pos.x = 128
-    end
-    if self.pos.y > 128 then
-        self.pos.y = 0
-    elseif self.pos.y < 0 then
-        self.pos.y = 128
-    end
+    -- if self.pos.x > 128 then
+    --     self.pos.x = 0
+    -- elseif self.pos.x < 0 then
+    --     self.pos.x = 128
+    -- end
+    -- if self.pos.y > 128 then
+    --     self.pos.y = 0
+    -- elseif self.pos.y < 0 then
+    --     self.pos.y = 128
+    -- end
 end
 
 function agent:apply_force(force)
